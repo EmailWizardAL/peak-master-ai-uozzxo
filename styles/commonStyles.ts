@@ -1,14 +1,15 @@
-import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
+
+import { StyleSheet } from 'react-native';
 
 export const colors = {
-  primary: '#162456',    // Material Blue
-  secondary: '#193cb8',  // Darker Blue
-  accent: '#64B5F6',     // Light Blue
-  background: '#101824',  // Keeping dark background
-  backgroundAlt: '#162133',  // Keeping dark background
-  text: '#e3e3e3',       // Keeping light text
-  grey: '#90CAF9',       // Light Blue Grey
-  card: '#193cb8',       // Keeping dark card background
+  background: '#f0f4f7',
+  text: '#2d3436',
+  textSecondary: '#747d8c',
+  primary: '#007bff',
+  secondary: '#6c757d',
+  accent: '#ffa500',
+  card: '#ffffff',
+  highlight: '#e0e0e0',
 };
 
 export const buttonStyles = StyleSheet.create({
@@ -16,11 +17,15 @@ export const buttonStyles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignSelf: 'center',
     width: '100%',
+    borderRadius: 8,
+    padding: 12,
   },
   backButton: {
-    backgroundColor: colors.backgroundAlt,
+    backgroundColor: colors.secondary,
     alignSelf: 'center',
     width: '100%',
+    borderRadius: 8,
+    padding: 12,
   },
 });
 
@@ -71,19 +76,19 @@ export const commonStyles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   card: {
-    backgroundColor: colors.backgroundAlt,
-    borderColor: colors.grey,
+    backgroundColor: colors.card,
+    borderColor: colors.highlight,
     borderWidth: 1,
     borderRadius: 10,
-    padding: 10,
+    padding: 16,
     marginVertical: 8,
     width: '100%',
-    boxShadow: '0px 2px 3px rgba(0, 0, 0, 0.1)',
-    elevation: 2,
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 3,
   },
   icon: {
     width: 60,
     height: 60,
-    tintColor: "white",
+    tintColor: colors.primary,
   },
 });
