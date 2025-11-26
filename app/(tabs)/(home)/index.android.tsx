@@ -22,9 +22,9 @@ export default function HomeScreen() {
   }, [canGoBack]);
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', onAndroidBackPress);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', onAndroidBackPress);
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', onAndroidBackPress);
+      backHandler.remove();
     };
   }, [onAndroidBackPress]);
 
