@@ -1,6 +1,6 @@
 
-import React, { useState, useRef, useCallback } from "react";
-import { StyleSheet, View, Text, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { StyleSheet, View, Text, ActivityIndicator, TouchableOpacity, BackHandler, Alert } from "react-native";
 import { WebView } from 'react-native-webview';
 import { colors } from "@/styles/commonStyles";
 
@@ -11,6 +11,22 @@ export default function HomeScreen() {
   const [canGoBack, setCanGoBack] = useState(false);
   const [currentUrl, setCurrentUrl] = useState('https://peak-pulse-279d9f00.base44.app');
   const webViewRef = useRef<WebView>(null);
+
+  // Handle Android hardware back button
+  const onAndroidBackPress = useCallback(() => {
+    if (canGoBack && webViewRef.current) {
+      webViewRef.current.goBack();
+      return true; // prevent default behavior (exit app)
+    }
+    return false;
+  }, [canGoBack]);
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', onAndroidBackPress);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', onAndroidBackPress);
+    };
+  }, [onAndroidBackPress]);
 
   const handleLoadStart = () => {
     console.log('WebView: Load started');
@@ -72,11 +88,12 @@ export default function HomeScreen() {
   // JavaScript to inject into the WebView for debugging and compatibility
   const injectedJavaScript = `
     (function() {
-      console.log('PeakMasterai WebView initialized');
+      console.log('PeakMasterai WebView initialized on Android');
       
       // Send debug info back to React Native
       window.ReactNativeWebView.postMessage(JSON.stringify({
         type: 'debug',
+        platform: 'android',
         userAgent: navigator.userAgent,
         url: window.location.href,
         timestamp: new Date().toISOString()
@@ -94,12 +111,15 @@ export default function HomeScreen() {
       
       // Ensure all interactive elements are accessible
       document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM Content Loaded');
+        console.log('DOM Content Loaded on Android');
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'domReady',
           timestamp: new Date().toISOString()
         }));
       });
+      
+      // Fix touch events for Android
+      document.addEventListener('touchstart', function() {}, {passive: true});
       
       true; // Required for injected JavaScript
     })();
@@ -130,6 +150,9 @@ export default function HomeScreen() {
       {error && (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>⚠️ {error}</Text>
+          <Text style={styles.errorSubtext}>
+            If you&apos;re seeing this error repeatedly, please ensure you have a stable internet connection.
+          </Text>
           <TouchableOpacity style={styles.retryButton} onPress={handleReload}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
@@ -160,18 +183,28 @@ export default function HomeScreen() {
         domStorageEnabled={true}
         startInLoadingState={true}
         scalesPageToFit={true}
-        bounces={true}
+        bounces={false}
         scrollEnabled={true}
-        allowsBackForwardNavigationGestures={true}
+        mixedContentMode="always"
+        originWhitelist={['*']}
         allowsInlineMediaPlayback={true}
         mediaPlaybackRequiresUserAction={false}
+        setSupportMultipleWindows={false}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={true}
         injectedJavaScript={injectedJavaScript}
         cacheEnabled={true}
+        cacheMode="LOAD_DEFAULT"
         incognito={false}
+        thirdPartyCookiesEnabled={true}
         sharedCookiesEnabled={true}
-        userAgent="Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 PeakMasterai/1.0"
+        userAgent="Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 PeakMasterai/1.0"
+        androidLayerType="hardware"
+        androidHardwareAccelerationDisabled={false}
+        overScrollMode="never"
+        nestedScrollEnabled={true}
+        setBuiltInZoomControls={false}
+        setDisplayZoomControls={false}
       />
     </View>
   );
@@ -181,17 +214,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+    paddingTop: 48,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 12,
+    paddingVertical: 12,
     backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: colors.highlight,
+    elevation: 4,
   },
   title: {
     fontSize: 20,
@@ -207,6 +241,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 6,
     backgroundColor: colors.primary,
+    elevation: 2,
   },
   backButton: {
     backgroundColor: colors.secondary,
@@ -243,18 +278,25 @@ const styles = StyleSheet.create({
     margin: 16,
     borderWidth: 1,
     borderColor: '#fcc',
+    elevation: 2,
   },
   errorText: {
     color: '#c33',
     fontSize: 14,
     marginBottom: 8,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  errorSubtext: {
+    color: '#c33',
+    fontSize: 12,
+    marginBottom: 12,
   },
   retryButton: {
     backgroundColor: colors.primary,
     borderRadius: 6,
     padding: 10,
     alignItems: 'center',
+    elevation: 2,
   },
   retryButtonText: {
     color: '#fff',
