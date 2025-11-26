@@ -1,3 +1,4 @@
+
 import "react-native-reanimated";
 import React, { useEffect } from "react";
 import { useFonts } from "expo-font";
@@ -5,7 +6,7 @@ import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SystemBars } from "react-native-edge-to-edge";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useColorScheme, Alert } from "react-native";
+import { useColorScheme, Alert, LogBox } from "react-native";
 import { useNetworkState } from "expo-network";
 import {
   DarkTheme,
@@ -19,8 +20,11 @@ import { WidgetProvider } from "@/contexts/WidgetContext";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+// Disable development reload overlay and other warnings
+LogBox.ignoreAllLogs(true);
+
 export const unstable_settings = {
-  initialRouteName: "(tabs)", // Ensure any route can link back to `/`
+  initialRouteName: "index", // Set home as initial route
 };
 
 export default function RootLayout() {
@@ -85,8 +89,8 @@ export default function RootLayout() {
           <WidgetProvider>
             <GestureHandlerRootView>
             <Stack>
-              {/* Main app with tabs */}
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              {/* Main home screen without tabs */}
+              <Stack.Screen name="index" options={{ headerShown: false }} />
 
               {/* Modal Demo Screens */}
               <Stack.Screen
