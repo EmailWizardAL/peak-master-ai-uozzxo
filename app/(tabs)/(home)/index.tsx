@@ -13,6 +13,15 @@ export default function HomeScreen() {
   const [currentUrl, setCurrentUrl] = useState('https://peak-pulse-279d9f00.base44.app');
   const webViewRef = useRef<WebView>(null);
 
+  // Check if platform is supported
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      console.warn('WebView is not supported on web platform. Please use the web-specific version.');
+      setError('WebView is not supported on this platform. Please scan the QR code with your mobile device.');
+      setLoading(false);
+    }
+  }, []);
+
   // Handle Android hardware back button
   const onAndroidBackPress = useCallback(() => {
     if (canGoBack && webViewRef.current) {
@@ -129,6 +138,37 @@ export default function HomeScreen() {
       true; // Required for injected JavaScript
     })();
   `;
+
+  // If web platform, show error message
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>PeakMasterai</Text>
+        </View>
+        <View style={styles.webPlatformContainer}>
+          <Text style={styles.webPlatformTitle}>📱 Mobile App Only</Text>
+          <Text style={styles.webPlatformText}>
+            PeakMasterai is designed to run on mobile devices.
+          </Text>
+          <Text style={styles.webPlatformText}>
+            Please scan the QR code with your iOS or Android device to use the app.
+          </Text>
+          <View style={styles.webPlatformInfo}>
+            <Text style={styles.webPlatformInfoText}>
+              ✓ Works on iOS devices
+            </Text>
+            <Text style={styles.webPlatformInfoText}>
+              ✓ Works on Android devices
+            </Text>
+            <Text style={styles.webPlatformInfoText}>
+              ✗ Web preview not supported
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -296,5 +336,39 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  webPlatformContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  webPlatformTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  webPlatformText: {
+    fontSize: 16,
+    color: colors.text,
+    marginBottom: 12,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  webPlatformInfo: {
+    marginTop: 32,
+    padding: 20,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.highlight,
+  },
+  webPlatformInfoText: {
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 8,
+    lineHeight: 20,
   },
 });
